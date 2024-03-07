@@ -352,14 +352,14 @@ bool UniversalTelegramBot::setMyCommands(const String& commandArray) {
   payload["commands"] = serialized(commandArray);
   bool sent = false;
   String response = "";
-  #if defined(_debug)
+  #ifdef TELEGRAM_DEBUG
   Serial.println(F("sendSetMyCommands: SEND Post /setMyCommands"));
-  #endif  // defined(_debug)
+  #endif
   unsigned long sttime = millis();
 
   while (millis() - sttime < 8000ul) { // loop for a while to send the message
     response = sendPostToTelegram(BOT_CMD("setMyCommands"), payload.as<JsonObject>());
-    #ifdef _debug  
+    #ifdef TELEGRAM_DEBUG  
     Serial.println("setMyCommands response" + response);
     #endif
     sent = checkForOkResponse(response);
@@ -933,11 +933,76 @@ bool UniversalTelegramBot::answerCallbackQuery(const String &query_id, const Str
   if (url.length() > 0) payload["url"] = url;
 
   String response = sendPostToTelegram(BOT_CMD("answerCallbackQuery"), payload.as<JsonObject>());
-  #ifdef _debug  
+  #ifdef TELEGRAM_DEBUG  
      Serial.print(F("answerCallbackQuery response:"));
      Serial.println(response);
   #endif
   bool answer = checkForOkResponse(response);
   closeClient();
   return answer;
+}
+
+// fcw: 2022-09-19: um Nachrichten zu loeschen, kopiert und angepasst von sendSimpleMessage(...)
+// 2024-03-07: testweise mal die deleteMessage von gemini1389 testen, meine auskommentiert. Geht, also bis auf weiteres die gemini1389
+
+//bool UniversalTelegramBot::deleteMessage(const String& chat_id, int message_id) {
+  //bool sent = false;
+  //#ifdef TELEGRAM_DEBUG  
+    //Serial.println(F("deleteMessage: DELETE Message"));
+  //#endif
+  //unsigned long sttime = millis();
+
+  //if (chat_id != "" && message_id != 0) {
+    //while (millis() - sttime < 8000ul) { // loop for a while to send the message
+      //String command = BOT_CMD("deleteMessage?chat_id=");
+      //command += chat_id;
+      //command += F("&message_id=");
+      //command += String(message_id);
+      //String response = sendGetToTelegram(command);
+      //#ifdef TELEGRAM_DEBUG  
+        //Serial.println(response);
+      //#endif
+      //sent = checkForOkResponse(response);
+      //if (sent) break;
+    //}
+  //}
+  //closeClient();
+  //return sent;
+//}
+
+// fcw: 2024-03-07: PR von gemini1389, siehe: https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot/pull/260/commits/abd6d9760fcc1ba76b60db33333a90fdef9a985a
+// ... auf dem Test-Bot getestet, scheint zu gehen
+/***********************************************************************
+ * DeleteMessage - function to delete message by message_id            *
+ * Function description and limitations:                               *
+ * https://core.telegram.org/bots/api#deletemessage                    *
+ ***********************************************************************/
+bool UniversalTelegramBot::deleteMessage(const String& chat_id, int message_id) {
+  if (message_id == 0)
+  {
+    #ifdef TELEGRAM_DEBUG
+	  Serial.println(F("deleteMessage: message_id not passed for deletion"));
+	#endif
+    return false;
+  }
+
+  DynamicJsonDocument payload(maxMessageLength);
+  payload["chat_id"] = chat_id;
+  payload["message_id"] = message_id;
+
+  #ifdef TELEGRAM_DEBUG
+    Serial.print(F("deleteMessage: SEND Post Message: "));
+    serializeJson(payload, Serial);
+    Serial.println();
+  #endif
+
+  String response = sendPostToTelegram(BOT_CMD("deleteMessage"), payload.as<JsonObject>());
+  #ifdef TELEGRAM_DEBUG
+     Serial.print(F("deleteMessage response:"));
+     Serial.println(response);
+  #endif
+
+  bool sent = checkForOkResponse(response);
+  closeClient();
+  return sent;
 }
