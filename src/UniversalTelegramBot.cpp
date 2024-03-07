@@ -389,16 +389,16 @@ bool UniversalTelegramBot::setMyCommands(const String& commandArray) {
  * GetMyCommands - Gets the command list from the bot on the telegram server     *
  * (Argument to pass: String to store the result)                                *
  ********************************************************************************/
-void UniversalTelegramBot::getMyCommands(String &cmdList) {
-  String response = sendGetToTelegram(BOT_CMD("getMyCommands"));
-  DynamicJsonDocument doc(maxMessageLength);
-  DeserializationError error = deserializeJson(doc, ZERO_COPY(response));
-  closeClient();
-  cmdList = "";
-  if (!error && doc.containsKey("result")) {
-      serializeJson(doc["result"], cmdList);
-  }
-}
+//void UniversalTelegramBot::getMyCommands(String &cmdList) {
+  //String response = sendGetToTelegram(BOT_CMD("getMyCommands"));
+  //DynamicJsonDocument doc(maxMessageLength);
+  //DeserializationError error = deserializeJson(doc, ZERO_COPY(response));
+  //closeClient();
+  //cmdList = "";
+  //if (!error && doc.containsKey("result")) {
+      //serializeJson(doc["result"], cmdList);
+  //}
+//}
 
 
 /***************************************************************
@@ -711,37 +711,37 @@ bool UniversalTelegramBot::deleteMessage(const String& chat_id, int message_id) 
   return sent;
 }
 
-bool UniversalTelegramBot::sendMessageWithReplyKeyboard(
-    const String& chat_id, const String& text, const String& parse_mode, const String& keyboard,
-    bool resize, bool oneTime, bool selective) {
+//bool UniversalTelegramBot::sendMessageWithReplyKeyboard(
+    //const String& chat_id, const String& text, const String& parse_mode, const String& keyboard,
+    //bool resize, bool oneTime, bool selective) {
     
-  DynamicJsonDocument payload(maxMessageLength);
-  payload["chat_id"] = chat_id;
-  payload["text"] = text;
+  //DynamicJsonDocument payload(maxMessageLength);
+  //payload["chat_id"] = chat_id;
+  //payload["text"] = text;
 
-  if (parse_mode != "")
-    payload["parse_mode"] = parse_mode;
+  //if (parse_mode != "")
+    //payload["parse_mode"] = parse_mode;
 
-  JsonObject replyMarkup = payload.createNestedObject("reply_markup");
+  //JsonObject replyMarkup = payload.createNestedObject("reply_markup");
   
-  if (keyboard.isEmpty())
-    replyMarkup["remove_keyboard"] = true;
-  else
-    replyMarkup["keyboard"] = serialized(keyboard);
+  //if (keyboard.isEmpty())
+    //replyMarkup["remove_keyboard"] = true;
+  //else
+    //replyMarkup["keyboard"] = serialized(keyboard);
 
-  // Telegram defaults these values to false, so to decrease the size of the
-  // payload we will only send them if needed
-  if (resize)
-    replyMarkup["resize_keyboard"] = resize;
+   ////Telegram defaults these values to false, so to decrease the size of the
+   ////payload we will only send them if needed
+  //if (resize)
+    //replyMarkup["resize_keyboard"] = resize;
 
-  if (oneTime)
-    replyMarkup["one_time_keyboard"] = oneTime;
+  //if (oneTime)
+    //replyMarkup["one_time_keyboard"] = oneTime;
 
-  if (selective)
-    replyMarkup["selective"] = selective;
+  //if (selective)
+    //replyMarkup["selective"] = selective;
 
-  return sendPostMessage(payload.as<JsonObject>());
-}
+  //return sendPostMessage(payload.as<JsonObject>());
+//}
 
 bool UniversalTelegramBot::sendMessageWithInlineKeyboard(const String& chat_id,
                                                          const String& text,
